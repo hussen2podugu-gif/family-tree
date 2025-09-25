@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Family Data Entry</title>
+<style>
+body { font-family: Arial; background:#f5f5f5; padding:20px; }
+h2 { text-align:center; }
+
+form {
+max-width:980px; margin:auto; background:#fff; padding:20px;
+border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);
+display: grid; grid-template-columns: 150px 1fr 150px 1fr;
+gap:15px 20px; align-items:center;
+}
+input, select {
+width:100%; padding:6px 10px; border-radius:6px;
+border:1px solid #ccc; box-sizing:border-box;
+}
+button {
+padding:6px 12px; border-radius:6px; border:none;
+cursor:pointer; font-weight:bold;
+}
+.btn-primary { background:#4CAF50; color:white; }
+.btn-edit { background:#2196F3; color:white; }
+.btn-delete { background:#f44336; color:white; }
+.btn-export { background:#9C27B0; color:white; margin-right:10px; }
+.btn-import { background:#FF9800; color:white; }
+table { width:100%; border-collapse: collapse; margin-top:20px; }
+th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+.form-buttons { grid-column: 1 / -1; text-align:center; margin-top:10px; }
+.top-buttons { text-align:center; margin-bottom:20px; }
+</style>
+</head>
+<body>
+
+<h2>FAMILY DATA ENTRY</h2>
+
+
+
+<form id="familyForm">
+  <label>1. Member Id:</label>
+  <input type="text" id="memberId" readonly style="background:#eee; font-weight:bold;">
+
+  <label>2. Load Photo:</label>
+  <input type="file" id="photo">
+
+  <label>3. Surname:</label>
+  <input type="text" id="surname">
+
+  <label>4. Full Name:</label>
+  <input type="text" id="name">
+
+  <label>5. Mother Link:</label>
+  <select id="mother">
+    <option value="">-- Select Mother --</option>
+  </select>
+
+  <label>6. Spouse Link:</label>
+  <select id="spouse">
+    <option value="">-- Select Spouse --</option>
+  </select>
+
+  <label>7. Gender:</label>
+  <select id="gender">
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <label>8. No. of Children:</label>
+  <input type="number" id="children">
+
+  <label>9. Birth Date:</label>
+  <input type="date" id="dob">
+
+  <label>10. Death Date:</label>
+  <input type="date" id="dod">
+
+  <label>11. Education:</label>
+  <input type="text" id="education">
+
+  <label>12. Profession:</label>
+  <input type="text" id="profession">
+
+  <label>13. Birth Place:</label>
+  <input type="text" id="birthPlace">
+
+  <label>14. Residence:</label>
+  <input type="text" id="residence">
+
+  <label>15. Mobile:</label>
+  <input type="text" id="mobile">
+
+  <label>16. Caste:</label>
+  <input type="text" id="caste">
+
+  <label>17. Gotram:</label>
+  <input type="text" id="gotram">
+
+  <label>18. Language:</label>
+  <select id="language">
+    <option value="">-- Select Language --</option>
+    <option value="Telugu">Telugu</option>
+    <option value="Hindi">Hindi</option>
+    <option value="Urdu">Urdu</option>
+    <option value="English">English</option>
+  </select>
+
+  <label>19. Special Info:</label>
+  <input type="text" id="special">
+
+  <label>20. Email:</label>
+  <input type="email" id="email">
+
+  <!-- Save Member Button -->
+  <div class="form-buttons">
+    <button type="submit" class="btn-primary">💾 Save Member</button>
+  </div>
+
+  <!-- Import & Export Buttons -->
+  <div class="form-buttons" style="display:flex; justify-content:space-between; margin-top:10px;">
+    <div>
+      <input type="file" id="importFile" onchange="importData()" style="display:none;">
+      <button class="btn-import" onclick="document.getElementById('importFile').click()">⬆️ Import</button>
+    </div>
+    <div>
+      <button class="btn-export" onclick="exportData()">⬇️ Export</button>
+    </div>
+  </div>
+</form>
+
+
+
+<input type="text" id="searchBox" placeholder="🔍 Search by Name or Surname..." style="width:100%;padding:10px;margin:20px 0;">
+
+<table id="memberTable">
+<thead>
+<tr>
+<th>Actions</th><th>Id</th><th>Photo</th><th>Surname</th><th>Name</th><th>Children</th><th>Mother</th><th>Spouse</th><th>DOB</th>
+<th>Mobile</th><th>Birth Place</th><th>Residence</th><th>Education</th><th>Profession</th>
+<th>DOD</th><th>Gender</th><th>Language</th><th>Caste</th><th>Gotram</th><th>Special</th><th>Email</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script>
+let members = [];
+let editIndex = null;
+
+function generateMemberId() {
+  const maxId = members.reduce((max, m) => Math.max(max, parseInt(m.memberId || 0)), 0);
+  document.getElementById('memberId').value = maxId + 1;
+}
+
+function getMemberLabel(id) {
+  const m = members.find(mem => mem.memberId == id);
+  return m ? `${m.surname || 'Unknown'} ${m.name || ''} (${m.memberId || ''})` : '';
+}
+
+function populateLinkDropdowns() {
+  const motherSelect = document.getElementById('mother');
+  const spouseSelect = document.getElementById('spouse');
+  motherSelect.innerHTML = '<option value="">-- Select Mother --</option>';
+  spouseSelect.innerHTML = '<option value="">-- Select Spouse --</option>';
+
+  const sorted = [...members].sort((a, b) => parseInt(b.memberId || 0) - parseInt(a.memberId || 0)).reverse();
+
+  sorted.forEach(m => {
+    const label = `${m.surname || 'Unknown'} ${m.name || ''} (${m.memberId || ''})`.trim();
+    const option = new Option(label, m.memberId || '');
+    motherSelect.add(option.cloneNode(true));
+    spouseSelect.add(option.cloneNode(true));
+  });
+}
+
+function renderTable() {
+  const tbody = document.querySelector('#memberTable tbody');
+  const search = document.getElementById('searchBox')?.value?.toLowerCase() || '';
+  tbody.innerHTML = '';
+
+  members.filter(m =>
+    (m.name && m.name.toLowerCase().includes(search)) ||
+    (m.surname && m.surname.toLowerCase().includes(search))
+  ).forEach((member, index) => {
+    const row = tbody.insertRow();
+    row.innerHTML = `
+      <td>
+        <button class="btn-edit" onclick="editMember(${index})">📝</button>
+        <button class="btn-delete" onclick="deleteMember(${index})">🗑️</button>
+      </td>
+      <td>${member.memberId || ''}</td>
+      <td>${member.photo || ''}</td>
+      <td>${member.surname || ''}</td>
+      <td>${member.name || ''}</td>
+      <td>${member.children || ''}</td>
+      <td>${getMemberLabel(member.mother)}</td>
+      <td>${getMemberLabel(member.spouse)}</td>
+      <td>${member.dob || ''}</td>
+      <td>${member.mobile || ''}</td>
+      <td>${member.birthPlace || ''}</td>
+      <td>${member.residence || ''}</td>
+      <td>${member.education || ''}</td>
+      <td>${member.profession || ''}</td>
+      <td>${member.dod || ''}</td>
+      <td>${member.gender || ''}</td>
+      <td>${member.language || ''}</td>
+      <td>${member.caste || ''}</td>
+      <td>${member.gotram || ''}</td>
+      <td>${member.special || ''}</td>
+      <td>${member.email || ''}</td>
+    `;
+  });
+
+  populateLinkDropdowns();
+}
+
+function editMember(index) {
+  const m = members[index];
+  for (const key in m) {
+    if (document.getElementById(key)) {
+      document.getElementById(key).value = m[key];
+    }
+  }
+  editIndex = index;
+  document.querySelector('.btn-primary').textContent = '🔄 Update Member';
+}
+
+function deleteMember(index) {
+  if (confirm("Delete this member?")) {
+    members.splice(index, 1);
+    localStorage.setItem('familyMembers', JSON.stringify(members));
+    generateMemberId();
+    renderTable();
+  }
+}
+
+function saveToGoogleSheet(member) {
+  fetch("https://script.google.com/macros/s/AKfycbxUCpquE1JhVXaMLksi1S7AwGGgpgAbUUdUEzkNACun7Oxy7ZVVPpYgQfICDDJCjYb0rA/exec", {
+    method: "POST",
+    body: JSON.stringify(member),
+    headers: { "Content-Type": "application/json" }
+  }).then(res => res.text()).then(msg => console.log("Google Sheet:", msg));
+}
+
+function loadFromGoogleSheet() {
+  fetch("https://script.google.com/macros/s/AKfycbxUCpquE1JhVXaMLksi1S7AwGGgpgAbUUdUEzkNACun7Oxy7ZVVPpYgQfICDDJCjYb0rA/exec")
+    .then(res => res.json())
+    .then(data => {
+      console.log("Loaded from Sheet:", data);
+      members = Array.isArray(data) ? data.map(m => ({
+        ...m,
+        name: m.name || "",
+        surname: m.surname || ""
+      })) : [];
+      localStorage.setItem('familyMembers', JSON.stringify(members));
+      generateMemberId();
+      renderTable();
+    })
+    .catch(err => console.error("Sheet load error:", err));
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadFromGoogleSheet();
+});
+
+document.getElementById('familyForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const newMember = {
+    memberId: document.getElementById('memberId').value,
+    photo: '', // handle photo separately if needed
+    surname: document.getElementById('surname').value,
+    name: document.getElementById('name').value,
+    mother: document.getElementById('mother').value,
+    spouse: document.getElementById('spouse').value,
+    gender: document.getElementById('gender').value,
+    children: document.getElementById('children').value,
+    dob: document.getElementById('dob').value,
+    dod: document.getElementById('dod').value,
+    education: document.getElementById('education').value,
+    profession: document.getElementById('profession').value,
+    birthPlace: document.getElementById('birthPlace').value,
+    residence: document.getElementById('residence').value,
+    mobile: document.getElementById('mobile').value,
+    caste: document.getElementById('caste').value,
+    gotram: document.getElementById('gotram').value,
+    language: document.getElementById('language').value,
+    special: document.getElementById('special').value,
+    email: document.getElementById('email').value
+  };
+
+  if (editIndex !== null) {
+    members[editIndex] = newMember;
+    editIndex = null;
+    document.querySelector('.btn-primary').textContent = '💾 Save Member';
+  } else {
+    members.push(newMember);
+  }
+
+  localStorage.setItem('familyMembers', JSON.stringify(members));
+  saveToGoogleSheet(newMember);
+  this.reset();
+  generateMemberId();
+  renderTable();
+});
+
+</script>
+</body>
+</html>
