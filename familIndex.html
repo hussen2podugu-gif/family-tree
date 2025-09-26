@@ -3,19 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <title>Family Data Entry</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f9f9f9;
+    }
+    h2 {
+      color: #333;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+      max-width: 500px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+  </style>
 </head>
 <body>
+
   <h2>Family Data Entry Form</h2>
-  <form action="https://script.google.com/macros/s/AKfycbyS5QnCjMZa7cq0mfRcgl2KFbXkSFpX69qzoRVGMG_H4LyVS2YDe6WuuZ1MX8RenLJDZQ/exec" method="GET">
-    Member ID: <input name="memberId" required><br>
-    Surname: <input name="surname"><br>
-    Name: <input name="name"><br>
-    Children: <input name="children"><br>
-    DOB: <input name="dob" type="date"><br>
-    Gender: <input name="gender"><br>
-    Mother Link: <input name="motherLink"><br>
-    Spouse Link: <input name="spouseLink"><br>
+  <form action="https://script.google.com/macros/s/PASTE_YOUR_SCRIPT_URL_HERE/exec" method="GET">
+    <label>Member ID:</label>
+    <input name="memberId" required>
+
+    <label>Surname:</label>
+    <input name="surname">
+
+    <label>Name:</label>
+    <input name="name">
+
+    <label>Children:</label>
+    <input name="children">
+
+    <label>Date of Birth:</label>
+    <input name="dob" type="date">
+
+    <label>Gender:</label>
+    <input name="gender">
+
+    <label>Mother Link:</label>
+    <input name="motherLink">
+
+    <label>Spouse Link:</label>
+    <input name="spouseLink">
+
     <button type="submit">Save</button>
   </form>
+
 </body>
 </html>
