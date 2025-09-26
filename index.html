@@ -149,7 +149,7 @@ function deleteMember(id) {
   if (!id) return alert("No member selected.");
   members = members.filter(m => m.memberId !== id);
   localStorage.setItem('familyMembers', JSON.stringify(members));
-  fetch('https://script.google.com/macros/s/AKfycbyh-H6Y6-K-v3rTzPKdmHPvg9P_fBfXxtUdMCx-gcsgOtvO1u4KuAYpnT15c_yg8iXCuw/exec?delete=true&memberId=' + encodeURIComponent(id));
+  fetch('https://script.google.com/macros/s/AKfycbywt4zqOn6tEyhNcCWl3sG2WGjJ-npfIRARFECn56ATQzm11iFddwHr0U13CFz-BoPx/exec?delete=true&memberId=' + encodeURIComponent(id));
   selectedId = null;
   generateMemberId();
   renderTable();
@@ -163,7 +163,7 @@ function saveToGoogleSheet(member) {
     .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(member[k])}`)
     .join("&");
 
-  fetch('https://script.google.com/macros/s/AKfycbyh-H6Y6-K-v3rTzPKdmHPvg9P_fBfXxtUdMCx-gcsgOtvO1u4KuAYpnT15c_yg8iXCuw/exec?' + query)
+  fetch('https://script.google.com/macros/s/AKfycbywt4zqOn6tEyhNcCWl3sG2WGjJ-npfIRARFECn56ATQzm11iFddwHr0U13CFz-BoPx/exec?' + query)
     .then(res => res.text())
     .then(msg => console.log("Google Sheet:", msg))
     .catch(err => alert("Failed to save to Google Sheet."));
