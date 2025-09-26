@@ -1,247 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Family Entry System</title>
+  <title>Family Data Entry</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    label { display: inline-block; width: 140px; margin-top: 10px; }
-    input, select { margin: 5px; padding: 5px; width: 200px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    .btn-primary { font-weight: bold; padding: 4px 8px; margin: 2px; }
-    .required::after { content: " *"; color: red; }
-    #messageLabel { color: red; font-weight: bold; margin-bottom: 10px; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f9f9f9;
+    }
+    h2 {
+      color: #333;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+      max-width: 500px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
   </style>
 </head>
 <body>
 
-<h2>Family Data Entry</h2>
-<div id="messageLabel"></div>
+  <h2>Family Data Entry Form</h2>
+  <form id="familyForm">
+    <label>Member ID:</label>
+    <input name="memberId" required>
 
-<form id="familyForm">
-  <label>0. ID</label><input type="text" id="memberId" readonly style="background:#eee; font-weight:bold;"><br>
-  <label class="required">1. Surname</label><input type="text" id="surname" required><br>
-  <label class="required">2. Name</label>
-  <input list="nameList" id="name" /><datalist id="nameList"></datalist><br>
-  <label>3. Children</label><input type="number" id="children" min="0"><br>
-  <label>4. DOB</label><input type="date" id="dob"><br>
-  <label>5. Gender</label>
-  <select id="gender">
-    <option value="Male" selected>Male</option>
-    <option value="Female">Female</option>
-    <option value="Other">Other</option>
-  </select><br>
-  <label>6. Mother Link</label>
-  <select id="motherLink"><option value="">-- None --</option></select><br>
-  <label>7. Spouse Link</label>
-  <select id="spouseLink"><option value="">-- None --</option></select><br>
-  <label>8. Language</label>
-  <select id="language">
-    <option value="en" selected>English</option>
-    <option value="te">Telugu</option>
-    <option value="hi">Hindi</option>
-    <option value="ta">Tamil</option>
-  </select><br>
+    <label>Surname:</label>
+    <input name="surname">
 
-  <div style="margin-top:10px;">
-    <button type="submit" id="saveBtn" class="btn-primary">💾 Save Member</button>
-  </div>
-</form>
+    <label>Name:</label>
+    <input name="name">
 
-<table id="memberTable">
-  <thead>
-    <tr>
-      <th>Actions</th>
-      <th>memberId</th>
-      <th>surname</th>
-      <th>name</th>
-      <th>children</th>
-      <th>dob</th>
-      <th>gender</th>
-      <th>motherLink</th>
-      <th>spouseLink</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+    <label>Children:</label>
+    <input name="children">
 
-<script>
-let members = [];
-let selectedId = null;
+    <label>Date of Birth:</label>
+    <input name="dob" type="date">
 
-function capitalize(text) {
-  return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : "";
-}
+    <label>Gender:</label>
+    <input name="gender">
 
-function getLabel(m) {
-  const s = capitalize(m.surname || "");
-  const n = capitalize(m.name || "");
-  const id = m.memberId || "?";
-  return `${s} ${n} (${id})`;
-}
+    <label>Mother Link:</label>
+    <input name="motherLink">
 
-function generateMemberId() {
-  const maxId = members.reduce((max, m) => {
-    const id = parseInt(m.memberId);
-    return isNaN(id) ? max : Math.max(max, id);
-  }, 0);
-  document.getElementById('memberId').value = maxId + 1;
-}
+    <label>Spouse Link:</label>
+    <input name="spouseLink">
 
-function populateDropdowns() {
-  const motherSelect = document.getElementById('motherLink');
-  const spouseSelect = document.getElementById('spouseLink');
-  const nameList = document.getElementById('nameList');
-  motherSelect.innerHTML = '<option value="">-- None --</option>';
-  spouseSelect.innerHTML = '<option value="">-- None --</option>';
-  nameList.innerHTML = '';
+    <button type="submit">Save</button>
+  </form>
 
-  members.forEach(m => {
-    const label = getLabel(m);
-    spouseSelect.add(new Option(label, label));
-    if (m.gender === "Female") motherSelect.add(new Option(label, label));
-  });
+  <script>
+    document.getElementById("familyForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const query = new URLSearchParams(form).toString();
 
-  [...new Set(members.map(m => capitalize(m.name)).filter(n => n))].forEach(n => {
-    nameList.appendChild(new Option(n));
-  });
-}
-
-function renderTable() {
-  const tbody = document.querySelector('#memberTable tbody');
-  tbody.innerHTML = '';
-  members.forEach(m => {
-    const row = tbody.insertRow();
-    row.innerHTML = `
-      <td>
-        <button onclick="editMember('${m.memberId}')" class="btn-primary">✏️</button>
-        <button onclick="deleteMember('${m.memberId}')" class="btn-primary">🗑️</button>
-      </td>
-      <td>${m.memberId}</td>
-      <td>${capitalize(m.surname)}</td>
-      <td>${capitalize(m.name)}</td>
-      <td>${m.children}</td>
-      <td>${m.dob}</td>
-      <td>${m.gender}</td>
-      <td>${m.motherLink}</td>
-      <td>${m.spouseLink}</td>
-    `;
-  });
-}
-
-function editMember(id) {
-  const m = members.find(mem => mem.memberId === id);
-  if (!m) return;
-  selectedId = id;
-  document.getElementById('memberId').value = m.memberId;
-  document.getElementById('surname').value = capitalize(m.surname);
-  document.getElementById('name').value = capitalize(m.name);
-  document.getElementById('children').value = m.children;
-  document.getElementById('dob').value = m.dob;
-  document.getElementById('gender').value = m.gender;
-  document.getElementById('motherLink').value = m.motherLink;
-  document.getElementById('spouseLink').value = m.spouseLink;
-  document.getElementById('saveBtn').textContent = "✏️ Update Member";
-}
-
-function deleteMember(id) {
-  if (!id) return alert("No member selected.");
-  members = members.filter(m => m.memberId !== id);
-  localStorage.setItem('familyMembers', JSON.stringify(members));
-  fetch('https://script.google.com/macros/s/AKfycbywt4zqOn6tEyhNcCWl3sG2WGjJ-npfIRARFECn56ATQzm11iFddwHr0U13CFz-BoPx/exec?delete=true&memberId=' + encodeURIComponent(id));
-  selectedId = null;
-  generateMemberId();
-  renderTable();
-  populateDropdowns();
-  document.getElementById('saveBtn').textContent = "💾 Save Member";
-}
-
-function saveToGoogleSheet(member) {
-  if (!member.memberId || isNaN(parseInt(member.memberId))) return;
-  const query = Object.keys(member)
-    .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(member[k])}`)
-    .join("&");
-
-  fetch('https://script.google.com/macros/s/AKfycbywt4zqOn6tEyhNcCWl3sG2WGjJ-npfIRARFECn56ATQzm11iFddwHr0U13CFz-BoPx/exec?' + query)
-    .then(res => res.text())
-    .then(msg => console.log("Google Sheet:", msg))
-    .catch(err => alert("Failed to save to Google Sheet."));
-}
-
-try {
-  const stored = localStorage.getItem('familyMembers');
-  members = Array.isArray(JSON.parse(stored)) ? JSON.parse(stored) : [];
-  members = members.filter(m => m.memberId && !isNaN(parseInt(m.memberId)));
-} catch (err) {
-  members = [];
-}
-
-window.onload = () => {
-  renderTable();
-  generateMemberId();
-  populateDropdowns();
-  if (members.length > 0) {
-    document.getElementById('surname').value = capitalize(members[members.length - 1].surname || "");
-  }
-};
-
-document.getElementById('familyForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  document.getElementById('messageLabel').textContent = "";
-
-  const memberId = document.getElementById('memberId').value;
-  const surname = capitalize(document.getElementById('surname').value.trim());
-  const name = capitalize(document.getElementById('name').value.trim());
-
-  if (!memberId || isNaN(parseInt(memberId))) {
-    alert("❌ Member ID not initialized.");
-    return;
-  }
-
-  const duplicate = members.find(m =>
-    capitalize(m.surname) === surname &&
-    capitalize(m.name) === name &&
-    m.memberId !== selectedId
-  );
-  if (duplicate) {
-    document.getElementById('messageLabel').textContent =
-      "The same name is already Registered. If any nickname is used, give it in parentheses or give father's name in parentheses.";
-    return;
-  }
-
-  const newMember = {
-    memberId,
-    surname,
-    name,
-    children: document.getElementById('children').value,
-    dob: document.getElementById('dob').value,
-    gender: document.getElementById('gender').value || "Male",
-    motherLink: document.getElementById('motherLink').value || "",
-    spouseLink: document.getElementById('spouseLink').value || ""
-  };
-
-  if (selectedId) {
-    const index = members.findIndex(m => m.memberId === selectedId);
-    members[index] = newMember;
-    selectedId = null;
-    document.getElementById('saveBtn').textContent = "💾 Save Member";
-  } else {
-    members.push(newMember);
-  }
-
-  localStorage.setItem('familyMembers', JSON.stringify(members));
-  saveToGoogleSheet(newMember);
-  renderTable();
-  this.reset();
-  document.getElementById('gender').value = "Male";
-  document.getElementById('motherLink').value = "";
-  document.getElementById('spouseLink').value = "";
-  generateMemberId();
-  populateDropdowns();
-  document.getElementById('surname').value = surname;
-});
-</script>
+      fetch("https://script.google.com/macros/s/AKfycbyS5QnCjMZa7cq0mfRcgl2KFbXkSFpX69qzoRVGMG_H4LyVS2YDe6WuuZ1MX8RenLJDZQ/exec?" + query)
+        .then(response => response.text())
+        .then(msg => {
+          alert("Response: " + msg);
+        })
+        .catch(error => {
+          alert("❌ Failed to save to Google Sheet");
+          console.error(error);
+        });
+    });
+  </script>
 
 </body>
 </html>
