@@ -1,310 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Family Data Entry</title>
-<style>
-body { font-family: Arial; background:#f5f5f5; padding:20px; }
-h2 { text-align:center; }
-
-form {
-max-width:980px; margin:auto; background:#fff; padding:20px;
-border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);
-display: grid; grid-template-columns: 150px 1fr 150px 1fr;
-gap:15px 20px; align-items:center;
-}
-input, select {
-width:100%; padding:6px 10px; border-radius:6px;
-border:1px solid #ccc; box-sizing:border-box;
-}
-button {
-padding:6px 12px; border-radius:6px; border:none;
-cursor:pointer; font-weight:bold;
-}
-.btn-primary { background:#4CAF50; color:white; }
-.btn-edit { background:#2196F3; color:white; }
-.btn-delete { background:#f44336; color:white; }
-.btn-export { background:#9C27B0; color:white; margin-right:10px; }
-.btn-import { background:#FF9800; color:white; }
-table { width:100%; border-collapse: collapse; margin-top:20px; }
-th, td { border:1px solid #ccc; padding:8px; text-align:left; }
-.form-buttons { grid-column: 1 / -1; text-align:center; margin-top:10px; }
-.top-buttons { text-align:center; margin-bottom:20px; }
-</style>
+  <meta charset="UTF-8">
+  <title>Family Entry System</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    label { display: inline-block; width: 140px; margin-top: 10px; }
+    input, select { margin: 5px; padding: 5px; width: 200px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    .btn-primary { font-weight: bold; padding: 4px 8px; margin: 2px; }
+    .required::after { content: " *"; color: red; }
+    #messageLabel { color: red; font-weight: bold; margin-bottom: 10px; }
+  </style>
 </head>
 <body>
 
-<h2>FAMILY DATA ENTRY</h2>
-
-
+<h2>Family Data Entry</h2>
+<div id="messageLabel"></div>
 
 <form id="familyForm">
-  <label>1. Member Id:</label>
-  <input type="text" id="memberId" readonly style="background:#eee; font-weight:bold;">
-
-  <label>2. Load Photo:</label>
-  <input type="file" id="photo">
-
-  <label>3. Surname:</label>
-  <input type="text" id="surname">
-
-  <label>4. Full Name:</label>
-  <input type="text" id="name">
-
-  <label>5. Mother Link:</label>
-  <select id="mother">
-    <option value="">-- Select Mother --</option>
-  </select>
-
-  <label>6. Spouse Link:</label>
-  <select id="spouse">
-    <option value="">-- Select Spouse --</option>
-  </select>
-
-  <label>7. Gender:</label>
+  <label>0. ID</label><input type="text" id="memberId" readonly style="background:#eee; font-weight:bold;"><br>
+  <label class="required">1. Surname</label><input type="text" id="surname" required><br>
+  <label class="required">2. Name</label>
+  <input list="nameList" id="name" /><datalist id="nameList"></datalist><br>
+  <label>3. Children</label><input type="number" id="children" min="0"><br>
+  <label>4. DOB</label><input type="date" id="dob"><br>
+  <label>5. Gender</label>
   <select id="gender">
-    <option value="Male">Male</option>
+    <option value="Male" selected>Male</option>
     <option value="Female">Female</option>
     <option value="Other">Other</option>
-  </select>
-
-  <label>8. No. of Children:</label>
-  <input type="number" id="children">
-
-  <label>9. Birth Date:</label>
-  <input type="date" id="dob">
-
-  <label>10. Death Date:</label>
-  <input type="date" id="dod">
-
-  <label>11. Education:</label>
-  <input type="text" id="education">
-
-  <label>12. Profession:</label>
-  <input type="text" id="profession">
-
-  <label>13. Birth Place:</label>
-  <input type="text" id="birthPlace">
-
-  <label>14. Residence:</label>
-  <input type="text" id="residence">
-
-  <label>15. Mobile:</label>
-  <input type="text" id="mobile">
-
-  <label>16. Caste:</label>
-  <input type="text" id="caste">
-
-  <label>17. Gotram:</label>
-  <input type="text" id="gotram">
-
-  <label>18. Language:</label>
+  </select><br>
+  <label>6. Mother Link</label>
+  <select id="motherLink"><option value="">-- None --</option></select><br>
+  <label>7. Spouse Link</label>
+  <select id="spouseLink"><option value="">-- None --</option></select><br>
+  <label>8. Language</label>
   <select id="language">
-    <option value="">-- Select Language --</option>
-    <option value="Telugu">Telugu</option>
-    <option value="Hindi">Hindi</option>
-    <option value="Urdu">Urdu</option>
-    <option value="English">English</option>
-  </select>
+    <option value="en" selected>English</option>
+    <option value="te">Telugu</option>
+    <option value="hi">Hindi</option>
+    <option value="ta">Tamil</option>
+  </select><br>
 
-  <label>19. Special Info:</label>
-  <input type="text" id="special">
-
-  <label>20. Email:</label>
-  <input type="email" id="email">
-
-  <!-- Save Member Button -->
-  <div class="form-buttons">
-    <button type="submit" class="btn-primary">💾 Save Member</button>
-  </div>
-
-  <!-- Import & Export Buttons -->
-  <div class="form-buttons" style="display:flex; justify-content:space-between; margin-top:10px;">
-    <div>
-      <input type="file" id="importFile" onchange="importData()" style="display:none;">
-      <button class="btn-import" onclick="document.getElementById('importFile').click()">⬆️ Import</button>
-    </div>
-    <div>
-      <button class="btn-export" onclick="exportData()">⬇️ Export</button>
-    </div>
+  <div style="margin-top:10px;">
+    <button type="submit" id="saveBtn" class="btn-primary">💾 Save Member</button>
   </div>
 </form>
 
-
-
-<input type="text" id="searchBox" placeholder="🔍 Search by Name or Surname..." style="width:100%;padding:10px;margin:20px 0;">
-
 <table id="memberTable">
-<thead>
-<tr>
-<th>Actions</th><th>Id</th><th>Photo</th><th>Surname</th><th>Name</th><th>Children</th><th>Mother</th><th>Spouse</th><th>DOB</th>
-<th>Mobile</th><th>Birth Place</th><th>Residence</th><th>Education</th><th>Profession</th>
-<th>DOD</th><th>Gender</th><th>Language</th><th>Caste</th><th>Gotram</th><th>Special</th><th>Email</th>
-</tr>
-</thead>
-<tbody></tbody>
+  <thead>
+    <tr>
+      <th>Actions</th>
+      <th>memberId</th>
+      <th>surname</th>
+      <th>name</th>
+      <th>children</th>
+      <th>dob</th>
+      <th>gender</th>
+      <th>motherLink</th>
+      <th>spouseLink</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
 </table>
 
 <script>
 let members = [];
-let editIndex = null;
+let selectedId = null;
+
+function capitalize(text) {
+  return text ? text.charAt(0).toUpperCase() + text.slice(1).toLowerCase() : "";
+}
+
+function getLabel(m) {
+  const s = capitalize(m.surname || "");
+  const n = capitalize(m.name || "");
+  const id = m.memberId || "?";
+  return `${s} ${n} (${id})`;
+}
 
 function generateMemberId() {
-  const maxId = members.reduce((max, m) => Math.max(max, parseInt(m.memberId || 0)), 0);
+  const maxId = members.reduce((max, m) => {
+    const id = parseInt(m.memberId);
+    return isNaN(id) ? max : Math.max(max, id);
+  }, 0);
   document.getElementById('memberId').value = maxId + 1;
 }
 
-function getMemberLabel(id) {
-  const m = members.find(mem => mem.memberId == id);
-  return m ? `${m.surname || 'Unknown'} ${m.name || ''} (${m.memberId || ''})` : '';
-}
+function populateDropdowns() {
+  const motherSelect = document.getElementById('motherLink');
+  const spouseSelect = document.getElementById('spouseLink');
+  const nameList = document.getElementById('nameList');
+  motherSelect.innerHTML = '<option value="">-- None --</option>';
+  spouseSelect.innerHTML = '<option value="">-- None --</option>';
+  nameList.innerHTML = '';
 
-function populateLinkDropdowns() {
-  const motherSelect = document.getElementById('mother');
-  const spouseSelect = document.getElementById('spouse');
-  motherSelect.innerHTML = '<option value="">-- Select Mother --</option>';
-  spouseSelect.innerHTML = '<option value="">-- Select Spouse --</option>';
+  members.forEach(m => {
+    const label = getLabel(m);
+    spouseSelect.add(new Option(label, label));
+    if (m.gender === "Female") motherSelect.add(new Option(label, label));
+  });
 
-  const sorted = [...members].sort((a, b) => parseInt(b.memberId || 0) - parseInt(a.memberId || 0)).reverse();
-
-  sorted.forEach(m => {
-    const label = `${m.surname || 'Unknown'} ${m.name || ''} (${m.memberId || ''})`.trim();
-    const option = new Option(label, m.memberId || '');
-    motherSelect.add(option.cloneNode(true));
-    spouseSelect.add(option.cloneNode(true));
+  [...new Set(members.map(m => capitalize(m.name)).filter(n => n))].forEach(n => {
+    nameList.appendChild(new Option(n));
   });
 }
 
 function renderTable() {
   const tbody = document.querySelector('#memberTable tbody');
-  const search = document.getElementById('searchBox')?.value?.toLowerCase() || '';
   tbody.innerHTML = '';
-
-  members.filter(m =>
-    (m.name && m.name.toLowerCase().includes(search)) ||
-    (m.surname && m.surname.toLowerCase().includes(search))
-  ).forEach((member, index) => {
+  members.forEach(m => {
     const row = tbody.insertRow();
     row.innerHTML = `
       <td>
-        <button class="btn-edit" onclick="editMember(${index})">📝</button>
-        <button class="btn-delete" onclick="deleteMember(${index})">🗑️</button>
+        <button onclick="editMember('${m.memberId}')" class="btn-primary">✏️</button>
+        <button onclick="deleteMember('${m.memberId}')" class="btn-primary">🗑️</button>
       </td>
-      <td>${member.memberId || ''}</td>
-      <td>${member.photo || ''}</td>
-      <td>${member.surname || ''}</td>
-      <td>${member.name || ''}</td>
-      <td>${member.children || ''}</td>
-      <td>${getMemberLabel(member.mother)}</td>
-      <td>${getMemberLabel(member.spouse)}</td>
-      <td>${member.dob || ''}</td>
-      <td>${member.mobile || ''}</td>
-      <td>${member.birthPlace || ''}</td>
-      <td>${member.residence || ''}</td>
-      <td>${member.education || ''}</td>
-      <td>${member.profession || ''}</td>
-      <td>${member.dod || ''}</td>
-      <td>${member.gender || ''}</td>
-      <td>${member.language || ''}</td>
-      <td>${member.caste || ''}</td>
-      <td>${member.gotram || ''}</td>
-      <td>${member.special || ''}</td>
-      <td>${member.email || ''}</td>
+      <td>${m.memberId}</td>
+      <td>${capitalize(m.surname)}</td>
+      <td>${capitalize(m.name)}</td>
+      <td>${m.children}</td>
+      <td>${m.dob}</td>
+      <td>${m.gender}</td>
+      <td>${m.motherLink}</td>
+      <td>${m.spouseLink}</td>
     `;
   });
-
-  populateLinkDropdowns();
 }
 
-function editMember(index) {
-  const m = members[index];
-  for (const key in m) {
-    if (document.getElementById(key)) {
-      document.getElementById(key).value = m[key];
-    }
-  }
-  editIndex = index;
-  document.querySelector('.btn-primary').textContent = '🔄 Update Member';
+function editMember(id) {
+  const m = members.find(mem => mem.memberId === id);
+  if (!m) return;
+  selectedId = id;
+  document.getElementById('memberId').value = m.memberId;
+  document.getElementById('surname').value = capitalize(m.surname);
+  document.getElementById('name').value = capitalize(m.name);
+  document.getElementById('children').value = m.children;
+  document.getElementById('dob').value = m.dob;
+  document.getElementById('gender').value = m.gender;
+  document.getElementById('motherLink').value = m.motherLink;
+  document.getElementById('spouseLink').value = m.spouseLink;
+  document.getElementById('saveBtn').textContent = "✏️ Update Member";
 }
 
-function deleteMember(index) {
-  if (confirm("Delete this member?")) {
-    members.splice(index, 1);
-    localStorage.setItem('familyMembers', JSON.stringify(members));
-    generateMemberId();
-    renderTable();
-  }
+function deleteMember(id) {
+  if (!id) return alert("No member selected.");
+  members = members.filter(m => m.memberId !== id);
+  localStorage.setItem('familyMembers', JSON.stringify(members));
+  fetch('https://script.google.com/macros/s/AKfycbyXeAsQOIxkqvpsMVnsSye_-fjpAZfw2EDumAnDOdkpxJ-BKLDKGlBxuqCnf_7WZfN3HQ/exec?delete=true&memberId=' + encodeURIComponent(id));
+  selectedId = null;
+  generateMemberId();
+  renderTable();
+  populateDropdowns();
+  document.getElementById('saveBtn').textContent = "💾 Save Member";
 }
 
 function saveToGoogleSheet(member) {
-  fetch("https://script.google.com/macros/s/AKfycbxUCpquE1JhVXaMLksi1S7AwGGgpgAbUUdUEzkNACun7Oxy7ZVVPpYgQfICDDJCjYb0rA/exec", {
-    method: "POST",
-    body: JSON.stringify(member),
-    headers: { "Content-Type": "application/json" }
-  }).then(res => res.text()).then(msg => console.log("Google Sheet:", msg));
+  if (!member.memberId || isNaN(parseInt(member.memberId))) return;
+  const query = Object.keys(member)
+    .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(member[k])}`)
+    .join("&");
+
+  fetch('https://script.google.com/macros/s/AKfycbyXeAsQOIxkqvpsMVnsSye_-fjpAZfw2EDumAnDOdkpxJ-BKLDKGlBxuqCnf_7WZfN3HQ/exec?' + query)
+    .then(res => res.text())
+    .then(msg => console.log("Google Sheet:", msg))
+    .catch(err => alert("Failed to save to Google Sheet."));
 }
 
-function loadFromGoogleSheet() {
-  fetch("https://script.google.com/macros/s/AKfycbxUCpquE1JhVXaMLksi1S7AwGGgpgAbUUdUEzkNACun7Oxy7ZVVPpYgQfICDDJCjYb0rA/exec")
-    .then(res => res.json())
-    .then(data => {
-      console.log("Loaded from Sheet:", data);
-      members = Array.isArray(data) ? data.map(m => ({
-        ...m,
-        name: m.name || "",
-        surname: m.surname || ""
-      })) : [];
-      localStorage.setItem('familyMembers', JSON.stringify(members));
-      generateMemberId();
-      renderTable();
-    })
-    .catch(err => console.error("Sheet load error:", err));
+try {
+  const stored = localStorage.getItem('familyMembers');
+  members = Array.isArray(JSON.parse(stored)) ? JSON.parse(stored) : [];
+  members = members.filter(m => m.memberId && !isNaN(parseInt(m.memberId)));
+} catch (err) {
+  members = [];
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  loadFromGoogleSheet();
-});
+window.onload = () => {
+  renderTable();
+  generateMemberId();
+  populateDropdowns();
+  if (members.length > 0) {
+    document.getElementById('surname').value = capitalize(members[members.length - 1].surname || "");
+  }
+};
 
 document.getElementById('familyForm').addEventListener('submit', function(e) {
   e.preventDefault();
+  document.getElementById('messageLabel').textContent = "";
+
+  const memberId = document.getElementById('memberId').value;
+  const surname = capitalize(document.getElementById('surname').value.trim());
+  const name = capitalize(document.getElementById('name').value.trim());
+
+  if (!memberId || isNaN(parseInt(memberId))) {
+    alert("❌ Member ID not initialized.");
+    return;
+  }
+
+  const duplicate = members.find(m =>
+    capitalize(m.surname) === surname &&
+    capitalize(m.name) === name &&
+    m.memberId !== selectedId
+  );
+  if (duplicate) {
+    document.getElementById('messageLabel').textContent =
+      "The same name is already Registered. If any nickname is used, give it in parentheses or give father's name in parentheses.";
+    return;
+  }
+
   const newMember = {
-    memberId: document.getElementById('memberId').value,
-    photo: '', // handle photo separately if needed
-    surname: document.getElementById('surname').value,
-    name: document.getElementById('name').value,
-    mother: document.getElementById('mother').value,
-    spouse: document.getElementById('spouse').value,
-    gender: document.getElementById('gender').value,
+    memberId,
+    surname,
+    name,
     children: document.getElementById('children').value,
     dob: document.getElementById('dob').value,
-    dod: document.getElementById('dod').value,
-    education: document.getElementById('education').value,
-    profession: document.getElementById('profession').value,
-    birthPlace: document.getElementById('birthPlace').value,
-    residence: document.getElementById('residence').value,
-    mobile: document.getElementById('mobile').value,
-    caste: document.getElementById('caste').value,
-    gotram: document.getElementById('gotram').value,
-    language: document.getElementById('language').value,
-    special: document.getElementById('special').value,
-    email: document.getElementById('email').value
+    gender: document.getElementById('gender').value || "Male",
+    motherLink: document.getElementById('motherLink').value || "",
+    spouseLink: document.getElementById('spouseLink').value || ""
   };
 
-  if (editIndex !== null) {
-    members[editIndex] = newMember;
-    editIndex = null;
-    document.querySelector('.btn-primary').textContent = '💾 Save Member';
+  if (selectedId) {
+    const index = members.findIndex(m => m.memberId === selectedId);
+    members[index] = newMember;
+    selectedId = null;
+    document.getElementById('saveBtn').textContent = "💾 Save Member";
   } else {
     members.push(newMember);
   }
 
   localStorage.setItem('familyMembers', JSON.stringify(members));
   saveToGoogleSheet(newMember);
-  this.reset();
-  generateMemberId();
   renderTable();
+  this.reset();
+  document.getElementById('gender').value = "Male";
+  document.getElementById('motherLink').value = "";
+  document.getElementById('spouseLink').value = "";
+  generateMemberId();
+  populateDropdowns();
+  document.getElementById('surname').value = surname;
 });
-
 </script>
+
 </body>
 </html>
