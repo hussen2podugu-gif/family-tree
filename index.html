@@ -81,7 +81,7 @@
       const form = new FormData(e.target);
       const query = new URLSearchParams(form).toString();
 
-      fetch("https://script.google.com/macros/s/AKfycbyS5QnCjMZa7cq0mfRcgl2KFbXkSFpX69qzoRVGMG_H4LyVS2YDe6WuuZ1MX8RenLJDZQ/exec?" + query)
+      fetch("https://script.google.com/macros/s/AKfycbw2ZmzH4Sb4GlexmkYZoV9GjJhFWASzadJwZ1B9ZzlvDRPuFQWkqKIuKSgpqPJ7xAS9eA/exec?" + query)
         .then(response => response.text())
         .then(msg => {
           alert("Response: " + msg);
