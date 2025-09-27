@@ -47,7 +47,7 @@
 <body>
 
   <h2>Family Data Entry Form</h2>
-  <form id="familyForm">
+  <form action="https://script.google.com/macros/s/AKfycbyMLMfrrrIwqlnBAydF2bX0lIyZ5Zlc2VSAf3ejAWZ_w4t5O6XpBhwiuraU5u0iUl78Hg/exec" method="GET">
     <label>Member ID:</label>
     <input name="memberId" required>
 
@@ -74,24 +74,6 @@
 
     <button type="submit">Save</button>
   </form>
-
-  <script>
-    document.getElementById("familyForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const form = new FormData(e.target);
-      const query = new URLSearchParams(form).toString();
-
-      fetch("https://script.google.com/macros/s/AKfycbw2ZmzH4Sb4GlexmkYZoV9GjJhFWASzadJwZ1B9ZzlvDRPuFQWkqKIuKSgpqPJ7xAS9eA/exec?" + query)
-        .then(response => response.text())
-        .then(msg => {
-          alert("Response: " + msg);
-        })
-        .catch(error => {
-          alert("❌ Failed to save to Google Sheet");
-          console.error(error);
-        });
-    });
-  </script>
 
 </body>
 </html>
