@@ -2,18 +2,25 @@
 <html>
 <head>
   <title>Family Data Entry</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+    input, button { margin: 5px 0; width: 100%; padding: 8px; }
+    button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+    h2 { text-align: center; }
+  </style>
 </head>
 <body>
   <h2>Enter Family Details</h2>
   <form id="family-form">
-    <input name="memberId" placeholder="Member ID" required><br>
-    <input name="surname" placeholder="Surname" required><br>
-    <input name="name" placeholder="Name" required><br>
-    <input name="children" placeholder="Children"><br>
-    <input name="dob" placeholder="Date of Birth"><br>
-    <input name="gender" placeholder="Gender"><br>
-    <input name="motherLink" placeholder="Mother Link"><br>
-    <input name="spouseLink" placeholder="Spouse Link"><br>
+    <input name="memberId" placeholder="Member ID" required>
+    <input name="surname" placeholder="Surname" required>
+    <input name="name" placeholder="Name" required>
+    <input name="children" placeholder="Children">
+    <input name="dob" placeholder="Date of Birth">
+    <input name="gender" placeholder="Gender">
+    <input name="motherLink" placeholder="Mother Link">
+    <input name="spouseLink" placeholder="Spouse Link">
     <button type="submit">Save</button>
   </form>
 
@@ -21,11 +28,20 @@
     document.getElementById('family-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const form = e.target;
-      const params = new URLSearchParams(new FormData(form)).toString();
-      fetch('https://script.google.com/macros/s/AKfycbyiEvKWGO7jbM5pQ7CX4K3PiksrtTdZgEvWyEkAqON0PWgbwRgqz5MpeG7uTnOsgzGK/exec' + '?' + params)
-        .then(res => res.text())
-        .then(data => alert(data))
-        .catch(err => alert("Error: " + err));
+      const formData = new FormData(form);
+
+      fetch('https://script.google.com/macros/s/AKfycbyiEvKWGO7jbM5pQ7CX4K3PiksrtTdZgEvWyEkAqON0PWgbwRgqz5MpeG7uTnOsgzGK/exec', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        alert(data);
+        form.reset();
+      })
+      .catch(error => {
+        alert("Error: " + error);
+      });
     });
   </script>
 </body>
