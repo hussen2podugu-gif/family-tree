@@ -1,59 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Kutumba Data Entry</title>
-  <style>
-    body { font-family: Arial, sans-serif; direction: ltr; }
-    label { display: block; margin-top: 10px; }
-    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
-    #data-table { margin-top: 20px; width: 100%; }
-  </style>
+  <title>Family Data Entry</title>
 </head>
 <body>
-  <h2>కుటుంబ వివరాలు నమోదు</h2>
-  <form id="entry-form">
-    <label>పేరు: <input type="text" name="name" required></label>
-    <label>లింగం:
-      <select name="gender" required>
-        <option value="">ఎంచుకోండి</option>
-        <option value="Male">పురుషుడు</option>
-        <option value="Female">స్త్రీ</option>
-        <option value="Other">ఇతర</option>
-      </select>
-    </label>
-    <label>తండ్రి పేరు: <input type="text" name="fatherName"></label>
-    <label>తల్లి పేరు: <input type="text" name="motherName"></label>
-    <label>వయస్సు: <input type="number" name="age"></label>
-    <label>బంధం: <input type="text" name="relation"></label>
-    <button type="submit">సేవ్ చేయండి</button>
+  <h2>Enter Family Details</h2>
+  <form id="family-form">
+    <input name="memberId" placeholder="Member ID" required><br>
+    <input name="surname" placeholder="Surname" required><br>
+    <input name="name" placeholder="Name" required><br>
+    <input name="children" placeholder="Children"><br>
+    <input name="dob" placeholder="Date of Birth"><br>
+    <input name="gender" placeholder="Gender"><br>
+    <input name="motherLink" placeholder="Mother Link"><br>
+    <input name="spouseLink" placeholder="Spouse Link"><br>
+    <button type="submit">Save</button>
   </form>
 
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th>పేరు</th><th>లింగం</th><th>తండ్రి</th><th>తల్లి</th><th>వయస్సు</th><th>బంధం</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
   <script>
-    document.getElementById('entry-form').addEventListener('submit', function(e) {
+    document.getElementById('family-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const form = e.target;
-      const row = document.createElement('tr');
-      ['name', 'gender', 'fatherName', 'motherName', 'age', 'relation'].forEach(field => {
-        const cell = document.createElement('td');
-        cell.textContent = form[field].value;
-        row.appendChild(cell);
-      });
-      document.querySelector('#data-table tbody').appendChild(row);
-
-      // Send to Google Sheet
-      fetch('https://script.google.com/macros/s/AKfycbyMLMfrrrIwqlnBAydF2bX0lIyZ5Zlc2VSAf3ejAWZ_w4t5O6XpBhwiuraU5u0iUl78Hg/exec', {
-        method: 'POST',
-        body: new FormData(form)
-      }).then(() => form.reset());
+      const params = new URLSearchParams(new FormData(form)).toString();
+      fetch('https://script.google.com/macros/s/AKfycbyiEvKWGO7jbM5pQ7CX4K3PiksrtTdZgEvWyEkAqON0PWgbwRgqz5MpeG7uTnOsgzGK/exec' + '?' + params)
+        .then(res => res.text())
+        .then(data => alert(data))
+        .catch(err => alert("Error: " + err));
     });
   </script>
 </body>
