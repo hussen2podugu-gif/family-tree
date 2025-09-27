@@ -1,79 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Family Data Entry</title>
+  <title>Kutumba Data Entry</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
-      background-color: #f9f9f9;
-    }
-    h2 {
-      color: #333;
-    }
-    form {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px #ccc;
-      max-width: 500px;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background-color: #0077cc;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #005fa3;
-    }
+    body { font-family: Arial, sans-serif; direction: ltr; }
+    label { display: block; margin-top: 10px; }
+    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+    #data-table { margin-top: 20px; width: 100%; }
   </style>
 </head>
 <body>
-
-  <h2>Family Data Entry Form</h2>
-  <form action="https://script.google.com/macros/s/AKfycbyMLMfrrrIwqlnBAydF2bX0lIyZ5Zlc2VSAf3ejAWZ_w4t5O6XpBhwiuraU5u0iUl78Hg/exec?" method="GET">
-    <label>Member ID:</label>
-    <input name="memberId" required>
-
-    <label>Surname:</label>
-    <input name="surname">
-
-    <label>Name:</label>
-    <input name="name">
-
-    <label>Children:</label>
-    <input name="children">
-
-    <label>Date of Birth:</label>
-    <input name="dob" type="date">
-
-    <label>Gender:</label>
-    <input name="gender">
-
-    <label>Mother Link:</label>
-    <input name="motherLink">
-
-    <label>Spouse Link:</label>
-    <input name="spouseLink">
-
-    <button type="submit">Save</button>
+  <h2>కుటుంబ వివరాలు నమోదు</h2>
+  <form id="entry-form">
+    <label>పేరు: <input type="text" name="name" required></label>
+    <label>లింగం:
+      <select name="gender" required>
+        <option value="">ఎంచుకోండి</option>
+        <option value="Male">పురుషుడు</option>
+        <option value="Female">స్త్రీ</option>
+        <option value="Other">ఇతర</option>
+      </select>
+    </label>
+    <label>తండ్రి పేరు: <input type="text" name="fatherName"></label>
+    <label>తల్లి పేరు: <input type="text" name="motherName"></label>
+    <label>వయస్సు: <input type="number" name="age"></label>
+    <label>బంధం: <input type="text" name="relation"></label>
+    <button type="submit">సేవ్ చేయండి</button>
   </form>
 
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>పేరు</th><th>లింగం</th><th>తండ్రి</th><th>తల్లి</th><th>వయస్సు</th><th>బంధం</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    document.getElementById('entry-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const row = document.createElement('tr');
+      ['name', 'gender', 'fatherName', 'motherName', 'age', 'relation'].forEach(field => {
+        const cell = document.createElement('td');
+        cell.textContent = form[field].value;
+        row.appendChild(cell);
+      });
+      document.querySelector('#data-table tbody').appendChild(row);
+
+      // Send to Google Sheet
+      fetch('https://script.google.com/macros/s/AKfycbyMLMfrrrIwqlnBAydF2bX0lIyZ5Zlc2VSAf3ejAWZ_w4t5O6XpBhwiuraU5u0iUl78Hg/exec', {
+        method: 'POST',
+        body: new FormData(form)
+      }).then(() => form.reset());
+    });
+  </script>
 </body>
 </html>
