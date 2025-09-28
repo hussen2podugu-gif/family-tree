@@ -1,48 +1,101 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <title>Family Data Entry</title>
+  <meta charset="utf-8">
+  <title>FAMILY DATA ENTRY</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
-    input, button { margin: 5px 0; width: 100%; padding: 8px; }
-    button { background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-    button:hover { background-color: #45a049; }
-    h2 { text-align: center; }
+    body { font-family: sans-serif; max-width: 520px; margin: 30px auto; padding: 10px; }
+    h2 { text-align:center; }
+    #lblError { margin-bottom:15px; font-weight: bold; min-height: 20px; color: blue; }
+    .form-row { display:flex; align-items:center; margin-top:10px; }
+    .form-row label { width: 140px; font-weight:bold; }
+    .form-row input, .form-row select { flex:1; padding:6px; }
+    button { margin-top:15px; padding:8px 14px; cursor:pointer; }
+    .required::after { content:" *"; color:red; }
+    input[readonly] { background-color: #f0f0f0; color:#555; }
   </style>
 </head>
 <body>
-  <h2>Enter Family Details</h2>
-  <form id="family-form">
-    <input name="memberId" placeholder="Member ID" required>
-    <input name="surname" placeholder="Surname" required>
-    <input name="name" placeholder="Name" required>
-    <input name="children" placeholder="Children">
-    <input name="dob" placeholder="Date of Birth">
-    <input name="gender" placeholder="Gender">
-    <input name="motherLink" placeholder="Mother Link">
-    <input name="spouseLink" placeholder="Spouse Link">
-    <button type="submit">Save</button>
-  </form>
+  <h2>FAMILY DATA ENTRY</h2>
+
+  <div id="lblError">If Nick name is there, keep it in ()</div>
+    
+<form action="https://script.google.com/macros/s/AKfycbx1234567890abcdef/exec" method="POST">
+  <label for="id">Id:</label>
+  <input type="text" id="id" name="id" value="1" readonly>
+
+  <label for="language">Language:</label>
+  <input type="text" id="language" name="language" required>
+
+  <label for="surname">Surname:</label>
+  <input type="text" id="surname" name="surname" required>
+
+  <label for="name">Name:</label>
+  <input type="text" id="name" name="name" required>
+
+  <button type="submit">Submit</button>
+</form>
 
   <script>
-    document.getElementById('family-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
+    const form = document.getElementById("familyForm");
+    const lblError = document.getElementById("lblError");
 
-      fetch('https://script.google.com/macros/s/AKfycbyiEvKWGO7jbM5pQ7CX4K3PiksrtTdZgEvWyEkAqON0PWgbwRgqz5MpeG7uTnOsgzGK/exec', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.text())
-      .then(data => {
-        alert(data);
-        form.reset();
-      })
-      .catch(error => {
-        alert("Error: " + error);
-      });
+    const url = "https://script.google.com/macros/s/AKfycbyetf4IdmQvrNebPgDEsoxHe-Xy-m4Za0bnth0NF66medIgM-bp_kFJXlDyF5SXceEnoQ/exec";
+
+    function resetMessage() {
+      setTimeout(() => {
+        lblError.textContent = "If Nick name is there, keep it in ()";
+        lblError.style.color = "blue";
+      }, 3000);
+    }
+
+    async function loadNextId() {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        console.log("Fetched data:", data); // Debug line
+        if (data.nextId) {
+          document.getElementById("id").value = data.nextId;
+        }
+        if (data.surname) {
+          document.getElementById("surname").value = data.surname;
+        }
+      } catch (err) {
+        lblError.textContent = "Error: Failed to fetch";
+        lblError.style.color = "red";
+        resetMessage();
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", loadNextId);
+
+    form.addEventListener("submit", async function(e){
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = new URLSearchParams(formData);
+
+      try {
+        const response = await fetch(url, { method: "POST", body: data });
+        const result = await response.json();
+
+        if(result.status === "success"){
+          lblError.style.color = "green";
+          lblError.textContent = "Saved successfully!";
+          form.reset();
+          await loadNextId();
+          resetMessage();
+        } else {
+          lblError.style.color = "red";
+          lblError.textContent = result.message;
+          resetMessage();
+        }
+      } catch(err){
+        lblError.style.color = "red";
+        lblError.textContent = "Error: Failed to fetch";
+        resetMessage();
+      }
     });
   </script>
 </body>
 </html>
+
